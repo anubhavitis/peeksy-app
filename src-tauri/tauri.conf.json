@@ -13,10 +13,14 @@
     "windows": [
       {
         "title": "peeksy-app",
-        "width": 800,
-        "height": 600
+        "transparent": true,
+        "decorations": false,
+        "width": 600,
+        "height": 300,
+        "visible": false
       }
     ],
+    "macOSPrivateApi": true,
     "security": {
       "csp": null
     }
