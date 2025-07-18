@@ -35,7 +35,7 @@ pub fn menue_item_config_handler(app: &AppHandle) {
         let _ = apply_blur(&window, Some((18, 18, 18, 125)));
 
         // Position the window
-        let _ = window.as_ref().window().move_window(Position::TopRight);
+        // let _ = window.as_ref().window().move_window(Position::TopRight);
 
         // Show and focus the window
         let _ = window.show();

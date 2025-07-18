@@ -27,4 +27,5 @@ window-vibrancy = "0.6.0"
 rayon = "1.8"
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
-tauri-plugin-positioner = "2"
+# tauri-plugin-positioner = "2"
+tauri-plugin-positioner = { version = "2.0.0", features = ["tray-icon"] }

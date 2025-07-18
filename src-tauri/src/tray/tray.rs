@@ -35,6 +35,7 @@ fn menue_event_handler(app: &AppHandle, event: MenuEvent) {
 
 pub fn setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
     let win = app.get_webview_window("main").unwrap();
+    #[cfg(not(target_os = "linux"))]
     let _ = win.as_ref().window().move_window(Position::TopRight);
 
     #[cfg(target_os = "macos")]
