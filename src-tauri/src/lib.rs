@@ -1,13 +1,20 @@
-pub mod config;
+pub mod configs;
 pub mod files;
+pub mod logger;
 pub mod tray;
 
-use config::Config;
+use configs::config::Config;
+use tauri::tray::TrayIconEvent;
+
+use crate::tray::handlers::menue_item_auth_handler;
 
 #[tauri::command]
-fn get_config() -> Config {
-    let config = Config::get();
-    config
+fn get_config() -> Result<Config, String> {
+    let config = Config::fetch();
+    match config {
+        Ok(config) => Ok(config),
+        Err(e) => Err(e.to_string()),
+    }
 }
 
 #[tauri::command]
@@ -25,10 +32,25 @@ fn close_window(window: tauri::Window) {
     window.close().unwrap();
 }
 
+pub fn setup(app: &tauri::App) {
+    logger::logger::setup_logger();
+    match configs::setup::initial_setup() {
+        Ok(_) => {}
+        Err(e) => {
+            eprintln!("Error: {}", e);
+        }
+    }
+
+    menue_item_auth_handler(&app.handle());
+}
+
 pub fn run() {
     let app = tauri::Builder::default()
         .plugin(tauri_plugin_positioner::init())
-        .setup(|app| tray::tray::setup(app))
+        .setup(|app| {
+            setup(app);
+            tray::tray::setup(app)
+        })
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             close_window,
@@ -39,10 +61,14 @@ pub fn run() {
         .build(tauri::generate_context!())
         .expect("error while running tauri application");
 
-    app.run(|_app, event| match event {
+    app.run(|app, event| match event {
         tauri::RunEvent::ExitRequested { api, .. } => {
             api.prevent_exit();
         }
+        tauri::RunEvent::TrayIconEvent(tray_event) => match tray_event {
+            TrayIconEvent::Click { .. } => {}
+            _ => {}
+        },
         _ => {}
     });
 }

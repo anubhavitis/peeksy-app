@@ -5,7 +5,9 @@ use tauri::{
 };
 use window_vibrancy::{apply_blur, apply_vibrancy, NSVisualEffectMaterial};
 
-use crate::tray::handlers::{menue_item_config_handler, menue_item_rename_handler};
+use crate::tray::handlers::{
+    menue_item_auth_handler, menue_item_config_handler, menue_item_rename_handler,
+};
 use tauri_plugin_positioner::{Position, WindowExt};
 
 fn tray_icon_event_handler(_: &TrayIcon, event: TrayIconEvent) {
@@ -15,7 +17,7 @@ fn tray_icon_event_handler(_: &TrayIcon, event: TrayIconEvent) {
             button_state: MouseButtonState::Up,
             ..
         } => {
-            println!("Left button clicked");
+            println!("Tray icon clicked");
         }
         _ => {
             // println!("Other button clicked: {:?}", event);
@@ -26,6 +28,7 @@ fn tray_icon_event_handler(_: &TrayIcon, event: TrayIconEvent) {
 fn menue_event_handler(app: &AppHandle, event: MenuEvent) {
     match event.id.as_ref() {
         "configs" => menue_item_config_handler(app),
+        "auth" => menue_item_auth_handler(app),
         "rename" => menue_item_rename_handler(app),
         _ => {
             // println!("Other menu item clicked: {:?}", event);
@@ -49,7 +52,8 @@ pub fn setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
     let stop_i = MenuItem::with_id(app, "stop", "Stop", true, None::<&str>)?;
     let rename_i = MenuItem::with_id(app, "rename", "Rename", true, None::<&str>)?;
     let configs_i = MenuItem::with_id(app, "configs", "Configs", true, None::<&str>)?;
-    let menu = Menu::with_items(app, &[&start_i, &stop_i, &rename_i, &configs_i])?;
+    let auth_i = MenuItem::with_id(app, "auth", "Auth", true, None::<&str>)?;
+    let menu = Menu::with_items(app, &[&start_i, &stop_i, &rename_i, &configs_i, &auth_i])?;
 
     TrayIconBuilder::new()
         .menu(&menu)

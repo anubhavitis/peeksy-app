@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use serde_json;
 use std::{fs::File, io};
 
-use crate::config::setup;
+use crate::configs::setup;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Config {
@@ -76,7 +76,6 @@ impl Config {
     pub fn get_openai_api_key(&self) -> Option<String> {
         self.openai_api_key.clone()
     }
-
 
     pub fn get_openai_prompt_file_path(&self) -> Option<String> {
         self.openai_prompt_file_path.clone()

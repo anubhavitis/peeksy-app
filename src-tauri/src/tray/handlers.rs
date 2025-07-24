@@ -7,40 +7,44 @@ use window_vibrancy::{apply_blur, apply_vibrancy, NSVisualEffectMaterial, NSVisu
 
 use crate::files;
 
-pub fn menue_item_config_handler(app: &AppHandle) {
-    if let Some(window) = app.get_webview_window("main") {
-        // Window exists, just show it
+pub fn webview_window_builder(app: &AppHandle, window_name: &str, url: &str) {
+    if let Some(window) = app.get_webview_window(window_name) {
         let _ = window.show();
         let _ = window.set_focus();
-    } else {
-        // Window was closed, create a new one
-        let window = WebviewWindowBuilder::new(app, "main", WebviewUrl::default())
-            .title("peeksy-app")
+        return;
+    }
+
+    let window =
+        WebviewWindowBuilder::new(app, window_name, WebviewUrl::External(url.parse().unwrap()))
+            .title("Peeksy App")
             .transparent(true)
             .decorations(false)
             .inner_size(600.0, 300.0)
             .build()
             .expect("Failed to create window");
 
-        // Apply vibrancy effect
-        #[cfg(target_os = "macos")]
-        let _ = apply_vibrancy(
-            &window,
-            NSVisualEffectMaterial::HudWindow,
-            Some(NSVisualEffectState::Active),
-            Some(10.0),
-        );
+    // Apply vibrancy effect
+    #[cfg(target_os = "macos")]
+    let _ = apply_vibrancy(
+        &window,
+        NSVisualEffectMaterial::HudWindow,
+        Some(NSVisualEffectState::Active),
+        Some(10.0),
+    );
 
-        #[cfg(target_os = "windows")]
-        let _ = apply_blur(&window, Some((18, 18, 18, 125)));
+    #[cfg(target_os = "windows")]
+    let _ = apply_blur(&window, Some((18, 18, 18, 125)));
 
-        // Position the window
-        let _ = window.as_ref().window().move_window(Position::TopRight);
+    // Position the window
+    let _ = window.as_ref().window().move_window(Position::TopRight);
+}
 
-        // Show and focus the window
-        let _ = window.show();
-        let _ = window.set_focus();
-    }
+pub fn menue_item_auth_handler(app: &AppHandle) {
+    webview_window_builder(app, "auth-web-view", "http://localhost:1420/auth");
+}
+
+pub fn menue_item_config_handler(app: &AppHandle) {
+    webview_window_builder(app, "config-web-view", "http://localhost:1420/configs");
 }
 
 pub fn menue_item_rename_handler(_: &AppHandle) {
