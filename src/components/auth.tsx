@@ -36,7 +36,9 @@ const Auth = ({ onClose }: AuthProps) => {
         if (onClose) onClose();
       }
     } catch (err: any) {
-      setError(err.message);
+      setError(
+        err.message || "An unexpected error occurred. Please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -50,6 +52,7 @@ const Auth = ({ onClose }: AuthProps) => {
           <span className="text-gray-900 dark:text-gray-100">Peeksy</span>
         </h1>
       </div>
+
       {error && (
         <div className="mb-4 p-3 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-md">
           <p className="text-red-700 dark:text-red-300 text-sm">{error}</p>
@@ -74,6 +77,7 @@ const Auth = ({ onClose }: AuthProps) => {
                      bg-white/30 dark:bg-black/30 text-gray-900 dark:text-gray-100
                      focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             placeholder="Enter your email"
+            disabled={loading}
           />
         </div>
 
@@ -95,6 +99,7 @@ const Auth = ({ onClose }: AuthProps) => {
                      bg-white/30 dark:bg-black/30 text-gray-900 dark:text-gray-100
                      focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             placeholder="Enter your password"
+            disabled={loading}
           />
         </div>
 
@@ -103,21 +108,32 @@ const Auth = ({ onClose }: AuthProps) => {
           disabled={loading}
           className="w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 
                    text-white font-medium rounded-md transition-colors duration-200
-                   focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                   focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2
+                   disabled:cursor-not-allowed"
         >
-          {loading ? "Loading..." : isLogin ? "Sign In" : "Sign Up"}
+          {loading ? (
+            <div className="flex items-center justify-center gap-2">
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              {isLogin ? "Signing In..." : "Signing Up..."}
+            </div>
+          ) : isLogin ? (
+            "Sign In"
+          ) : (
+            "Sign Up"
+          )}
         </button>
       </form>
 
-      <div className=" text-center">
+      <div className="text-center">
         <button
           type="button"
           onClick={() => {
             setIsLogin(!isLogin);
             setError(null);
           }}
+          disabled={loading}
           className="text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 
-                   text-xl font-medium transition-colors duration-200"
+                   text-xl font-medium transition-colors duration-200 disabled:opacity-50"
         >
           {isLogin
             ? "Don't have an account? Sign up"
@@ -130,8 +146,9 @@ const Auth = ({ onClose }: AuthProps) => {
           <button
             type="button"
             onClick={onClose}
+            disabled={loading}
             className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 
-                     text-sm transition-colors duration-200"
+                     text-sm transition-colors duration-200 disabled:opacity-50"
           >
             Cancel
           </button>

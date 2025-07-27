@@ -10,8 +10,8 @@ if (
   supabaseUrl === "YOUR_SUPABASE_URL" ||
   supabaseAnonKey === "YOUR_SUPABASE_ANON_KEY"
 ) {
-  console.warn(
-    "Supabase environment variables not set. Please create a .env file with:\n" +
+  console.error(
+    "❌ Supabase environment variables not set. Please create a .env file with:\n" +
       "VITE_SUPABASE_URL=your_supabase_project_url\n" +
       "VITE_SUPABASE_ANON_KEY=your_supabase_anon_key"
   );
