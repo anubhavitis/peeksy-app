@@ -6,8 +6,8 @@ pub mod store;
 pub mod tray;
 
 use std::path::PathBuf;
+use tray::menue_item_handlers::menue_item_auth_handler;
 
-use configs::config::Config;
 use store::{AuthSession, AuthValidation, PeeksyConfig, Store};
 use tauri::Manager;
 #[tauri::command]
@@ -87,7 +87,7 @@ fn get_config(app: tauri::AppHandle) -> Result<PathBuf, String> {
     Ok(config_dir.join("config.json"))
 }
 
-pub fn setup(app: &tauri::App) {
+pub fn setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
     logger::logger::setup_logger();
     match configs::setup::initial_setup() {
         Ok(_) => {}
@@ -103,18 +103,28 @@ pub fn setup(app: &tauri::App) {
             eprintln!("Config initialization error: {}", e);
         }
     }
-
     // check if user auth is valid from store.bin, else open /auth window
+    let auth_session = Store::fetch_auth(app.handle().clone());
+    if auth_session.is_err() {
+        let app_handle = app.handle().clone();
+        menue_item_auth_handler(&app_handle);
+    } else {
+        let auth_validation = Store::is_authenticated(app.handle().clone());
+        if auth_validation.is_err() {
+            let app_handle = app.handle().clone();
+            menue_item_auth_handler(&app_handle);
+        }
+    }
+
+    tray::tray::setup(app)?;
+
+    Ok(())
 }
 
 pub fn run() {
     let app = tauri::Builder::default()
         .plugin(tauri_plugin_positioner::init())
-        .setup(|app| {
-            setup(app);
-            // Tray is now set up with dynamic menu building on click
-            tray::tray::setup(app)
-        })
+        .setup(|app| setup(app))
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             close_window,

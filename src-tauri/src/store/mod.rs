@@ -129,51 +129,39 @@ impl Store {
 
         // Check token expiry if expires_at is provided
         if let Some(expires_at_str) = &session.expires_at {
-            match expires_at_str.parse::<u64>() {
-                Ok(expires_at) => {
-                    let expires_in = expires_at as i64 - current_time as i64;
+            if let Ok(expires_at) = expires_at_str.parse::<u64>() {
+                let expires_in = expires_at as i64 - current_time as i64;
 
-                    if expires_in <= 0 {
-                        return AuthValidation {
-                            is_valid: false,
-                            is_expired: true,
-                            is_near_expiry: false,
-                            expires_in_seconds: Some(expires_in),
-                            reason: Some("Access token has expired".to_string()),
-                        };
-                    }
-
-                    // Check if expiring within 5 minutes
-                    let near_expiry = expires_in < 300; // 5 minutes
-
+                if expires_in <= 0 {
                     return AuthValidation {
-                        is_valid: true,
-                        is_expired: false,
-                        is_near_expiry: near_expiry,
-                        expires_in_seconds: Some(expires_in),
-                        reason: if near_expiry {
-                            Some("Token expires soon".to_string())
-                        } else {
-                            None
-                        },
-                    };
-                }
-                Err(_) => {
-                    // If we can't parse expires_at, assume it's valid but warn
-                    return AuthValidation {
-                        is_valid: true,
-                        is_expired: false,
+                        is_valid: false,
+                        is_expired: true,
                         is_near_expiry: false,
-                        expires_in_seconds: None,
-                        reason: Some("Could not parse expiry time".to_string()),
+                        expires_in_seconds: Some(expires_in),
+                        reason: Some("Access token has expired".to_string()),
                     };
                 }
+
+                // Check if expiring within 5 minutes
+                let near_expiry = expires_in < 300; // 5 minutes
+
+                return AuthValidation {
+                    is_valid: true,
+                    is_expired: false,
+                    is_near_expiry: near_expiry,
+                    expires_in_seconds: Some(expires_in),
+                    reason: if near_expiry {
+                        Some("Token expires soon".to_string())
+                    } else {
+                        None
+                    },
+                };
             }
         }
 
         // If no expires_at, session is valid but we don't know expiry
         AuthValidation {
-            is_valid: true,
+            is_valid: false,
             is_expired: false,
             is_near_expiry: false,
             expires_in_seconds: None,
