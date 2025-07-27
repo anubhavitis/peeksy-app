@@ -3,7 +3,8 @@
   "identifier": "default",
   "description": "Capability for the main window",
   "windows": [
-    "config-web-view"
+    "config-web-view",
+    "auth-web-view"
   ],
   "permissions": [
     "core:default",

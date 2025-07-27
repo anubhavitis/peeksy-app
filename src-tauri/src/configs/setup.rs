@@ -5,6 +5,7 @@ use super::config;
 pub fn get_config_path() -> PathBuf {
     let parent = dirs::config_dir().unwrap().join("peeksy");
     let path: PathBuf = parent.join("peeksy_config.json");
+    println!("Config path: {:?}", path);
     path
 }
 
@@ -12,6 +13,24 @@ pub fn initial_setup() -> Result<(), Box<anyhow::Error>> {
     initial_prompt_setup()?;
     initial_path_setup()?;
     default_config_setup()?;
+    Ok(())
+}
+
+/// Initialize Peeksy configuration via Store module
+pub fn initialize_peeksy_config(app: tauri::AppHandle) -> Result<(), Box<anyhow::Error>> {
+    use crate::store::Store;
+    
+    // This will create default config if it doesn't exist
+    match Store::fetch_peeksy_config(app.clone()) {
+        Ok(_config) => {
+            println!("Peeksy configuration loaded successfully");
+        }
+        Err(e) => {
+            eprintln!("Failed to initialize Peeksy configuration: {}", e);
+            return Err(Box::new(anyhow::anyhow!(e)));
+        }
+    }
+    
     Ok(())
 }
 

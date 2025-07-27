@@ -6,7 +6,8 @@
     "linux"
   ],
   "windows": [
-    "config-web-view"
+    "config-web-view",
+    "auth-web-view"
   ],
   "permissions": [
     "positioner:default"

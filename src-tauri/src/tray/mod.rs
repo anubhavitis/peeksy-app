@@ -1,2 +1,2 @@
-pub mod handlers;
+pub mod menue_item_handlers;
 pub mod tray;
