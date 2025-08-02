@@ -106,7 +106,12 @@ fn tray_icon_event_handler(tray: &TrayIcon, event: TrayIconEvent) {
 
 fn menue_event_handler(app: &AppHandle, event: MenuEvent) {
     match event.id.as_ref() {
-        "status" => menue_item_status_handler(app),
+        "status" => {
+            let app_clone = app.clone();
+            tauri::async_runtime::spawn(async move {
+                menue_item_status_handler(&app_clone).await;
+            });
+        }
         "configs" => menue_item_config_handler(app),
         "auth" => menue_item_auth_handler(app),
         "rename" => menue_item_rename_handler(app),
@@ -118,6 +123,7 @@ fn menue_event_handler(app: &AppHandle, event: MenuEvent) {
 
 pub fn setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
     let win = app.get_webview_window("main").unwrap();
+    #[cfg(not(target_os = "linux"))]
     let _ = win.as_ref().window().move_window(Position::TopRight);
 
     #[cfg(target_os = "macos")]

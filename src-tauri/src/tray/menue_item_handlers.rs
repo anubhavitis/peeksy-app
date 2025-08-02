@@ -5,9 +5,13 @@ use tauri::{AppHandle, Manager, WebviewUrl, WebviewWindowBuilder};
 use tauri_plugin_positioner::{Position, WindowExt};
 use window_vibrancy::{apply_blur, apply_vibrancy, NSVisualEffectMaterial, NSVisualEffectState};
 
-use crate::files;
+use crate::{files, launchd};
 
-pub fn menue_item_status_handler(app: &AppHandle) {}
+pub async fn menue_item_status_handler(app: &AppHandle) {
+    let launchd = launchd::launchd::LaunchD::new();
+    let status = launchd.is_running().await;
+    println!("status: {:?}", status);
+}
 
 pub fn webview_window_builder(
     app: &AppHandle,
@@ -44,6 +48,7 @@ pub fn webview_window_builder(
     let _ = apply_blur(&window, Some((18, 18, 18, 125)));
 
     // Position the window
+    #[cfg(not(target_os = "linux"))]
     let _ = window.as_ref().window().move_window(Position::TopRight);
 }
 
