@@ -122,6 +122,24 @@ fn menue_event_handler(app: &AppHandle, event: MenuEvent) {
 }
 
 pub fn setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
+    use tauri_plugin_autostart::MacosLauncher;
+    use tauri_plugin_autostart::ManagerExt;
+
+    app.handle().plugin(tauri_plugin_autostart::init(
+        MacosLauncher::LaunchAgent,
+        Some(vec!["--flag1", "--flag2"]),
+    ));
+
+    // Get the autostart manager
+    let autostart_manager = app.autolaunch();
+    // Enable autostart
+    let _ = autostart_manager.enable();
+    // Check enable state
+    println!(
+        "registered for autostart? {}",
+        autostart_manager.is_enabled().unwrap()
+    );
+
     let win = app.get_webview_window("main").unwrap();
     #[cfg(not(target_os = "linux"))]
     let _ = win.as_ref().window().move_window(Position::TopRight);

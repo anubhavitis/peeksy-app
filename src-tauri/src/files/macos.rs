@@ -27,7 +27,7 @@ pub fn get_finder_selection() -> Option<Vec<String>> {
     if output.status.success() {
         let output = String::from_utf8_lossy(&output.stdout);
         let output_str = output.trim().to_string();
-        println!("output_str: {}", output_str);
+        // println!("output_str: {}", output_str);
 
         if output_str.is_empty() {
             return None;
@@ -39,7 +39,7 @@ pub fn get_finder_selection() -> Option<Vec<String>> {
             .filter(|line| !line.is_empty())
             .collect();
 
-        println!("Selected paths: {:?}", paths);
+        // println!("Selected paths: {:?}", paths);
 
         if !paths.is_empty() {
             Some(paths)

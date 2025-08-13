@@ -10,7 +10,12 @@ use crate::{files, launchd};
 pub async fn menue_item_status_handler(app: &AppHandle) {
     let launchd = launchd::launchd::LaunchD::new();
     let status = launchd.is_running().await;
-    println!("status: {:?}", status);
+    println!("previous status: {:?}", status);
+
+    launchd.load().await;
+
+    let status = launchd.is_running().await;
+    println!("current status: {:?}", status);
 }
 
 pub fn webview_window_builder(

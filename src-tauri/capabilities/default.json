@@ -9,6 +9,9 @@
   "permissions": [
     "core:default",
     "opener:default",
-    "positioner:default"
+    "positioner:default",
+    "autostart:allow-enable",
+    "autostart:allow-disable",
+    "autostart:allow-is-enabled"
   ]
 }

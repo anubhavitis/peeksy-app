@@ -1,4 +1,3 @@
-pub mod configs;
 pub mod files;
 pub mod launchd;
 pub mod logger;
@@ -8,8 +7,14 @@ pub mod tray;
 use std::path::PathBuf;
 use tray::menue_item_handlers::menue_item_auth_handler;
 
-use store::{AuthSession, AuthValidation, PeeksyConfig, Store};
+use store::{
+    auth::{AuthSession, AuthValidation},
+    config::PeeksyConfig,
+    Store,
+};
+
 use tauri::Manager;
+
 #[tauri::command]
 fn get_finder_selection() -> Option<Vec<String>> {
     files::macos::get_finder_selection()
@@ -89,16 +94,11 @@ fn get_config(app: tauri::AppHandle) -> Result<PathBuf, String> {
 
 pub fn setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
     logger::logger::setup_logger();
-    match configs::setup::initial_setup() {
-        Ok(_) => {}
-        Err(e) => {
-            eprintln!("Error: {}", e);
-        }
-    }
-
     // Initialize Peeksy configuration
-    match configs::setup::initialize_peeksy_config(app.handle().clone()) {
-        Ok(_) => {}
+    match Store::fetch_peeksy_config(app.handle().clone()) {
+        Ok(_) => {
+            println!("Peeksy configuration initialized successfully");
+        }
         Err(e) => {
             eprintln!("Config initialization error: {}", e);
         }
@@ -123,6 +123,7 @@ pub fn setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
 
 pub fn run() {
     let app = tauri::Builder::default()
+        .plugin(tauri_plugin_autostart::init(Default::default(), None))
         .plugin(tauri_plugin_positioner::init())
         .setup(|app| setup(app))
         .plugin(tauri_plugin_opener::init())

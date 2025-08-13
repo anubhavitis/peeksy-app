@@ -1,60 +1,14 @@
 use std::fs::File;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use serde::{Deserialize, Serialize};
 use serde_json;
+
+pub mod auth;
+pub mod config;
+
+use auth::{AuthSession, AuthValidation};
+use config::PeeksyConfig;
 use tauri::Manager;
-
-use crate::configs::config::Config;
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct AuthSession {
-    pub access_token: String,
-    pub refresh_token: Option<String>,
-    pub expires_at: Option<String>,
-    pub user_id: String,
-    pub user_email: String,
-    pub stored_at: u64,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct AuthValidation {
-    pub is_valid: bool,
-    pub is_expired: bool,
-    pub is_near_expiry: bool,
-    pub expires_in_seconds: Option<i64>,
-    pub reason: Option<String>,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct PeeksyConfig {
-    pub openai_api_key: String,
-    pub peeksy_prompt: String,
-    pub openai_model: String,
-    pub updated_at: u64,
-}
-
-impl Default for PeeksyConfig {
-    fn default() -> Self {
-        Self {
-            openai_api_key: String::new(),
-            peeksy_prompt: r#"Analyze the attached image and generate a short, descriptive filename that clearly reflects its subject, context, and content.
-Rules:
-    1. Use lowercase letters only. Separate words with hyphens. No spaces or underscores.
-    2. Keep the filename between 3 to 8 words. Be concise but meaningful.
-    3. Apply intelligent context recognition:
-        - If it is an album cover, include the album title and band or artist name.
-        - If it is artwork, mention the style (e.g., oil-painting, digital-art, 3d-render).
-        - If it's a poster, include the movie/show/event name.
-    4. Avoid generic terms like "image", "picture", "photo", or "screenshot".
-    5. Do not include the file extension (e.g., .jpg or .png) in the output.
-
-Return only the final filename string, with no extra explanation or punctuation."#.to_string(),
-            openai_model: "gpt-4o".to_string(),
-            updated_at: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(),
-        }
-    }
-}
 
 pub struct Store {}
 
